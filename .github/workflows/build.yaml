@@ -26,6 +26,14 @@ jobs:
           CADDY_VERSION=$(curl -s https://hub.docker.com/v2/repositories/library/caddy/tags?page_size=100 | jq -r '.results[] | select(.name | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")) | .name' | sort -V | tail -1)
           echo "version=$CADDY_VERSION" >> $GITHUB_OUTPUT
           echo "Caddy version: $CADDY_VERSION"
+          
+          # Extract major and minor versions
+          MAJOR=$(echo $CADDY_VERSION | cut -d. -f1)
+          MINOR=$(echo $CADDY_VERSION | cut -d. -f1-2)
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "Major version: $MAJOR"
+          echo "Minor version: $MINOR"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -43,7 +51,8 @@ jobs:
             type=sha,prefix=,suffix=,format=short
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=${{ steps.caddy-version.outputs.version }},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=raw,value=${{ steps.caddy-version.outputs.version }}-{{sha}},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=${{ steps.caddy-version.outputs.minor }},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=${{ steps.caddy-version.outputs.major }},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
