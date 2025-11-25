@@ -1,4 +1,4 @@
-# caddy-opt-image
+# caddy
 
 A customized Caddy web server Docker image with extended functionality through additional modules.
 
