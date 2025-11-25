@@ -1,0 +1,53 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["caddy"],
+      "groupName": "Caddy base image"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["golang"],
+      "groupName": "Golang builder image"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackagePatterns": ["^github.com/"],
+      "groupName": "Caddy modules"
+    }
+  ],
+  "dockerfile": {
+    "enabled": true
+  },
+  "regexManagers": [
+    {
+      "fileMatch": ["^Dockerfile$"],
+      "matchStrings": [
+        "ARG CADDY_VERSION=(?<currentValue>.*?)\\n"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "caddy",
+      "versioningTemplate": "docker"
+    },
+    {
+      "fileMatch": ["^Dockerfile$"],
+      "matchStrings": [
+        "--with (?<depName>github\\.com/[^\\s@]+?)(?:@(?<currentValue>[^\\s]+))?"
+      ],
+      "datasourceTemplate": "go",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "docker-compose": {
+    "enabled": true
+  },
+  "labels": ["dependencies"],
+  "automerge": false,
+  "separateMinorPatch": true,
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2
+}
