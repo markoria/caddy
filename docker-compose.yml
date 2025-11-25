@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  # Caddy Service - Uses your custom image
+  caddy:
+    image: markoria/caddy:latest
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      # Data volume for certificates and state
+      - caddy_data:/data
+      # Config volume for the Caddyfile (to set up the Admin API & Reverse Proxy)
+      - ./caddy_config/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Docker socket access is necessary for caddy-docker-proxy to read labels
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Enable Admin API on internal port 2019
+      CADDY_ADMIN_LISTEN: :2019
+      # Set your domain for external access
+      CADDY_DOMAIN: "caddy.local" # Adjust or remove if you use labels exclusively
+    networks:
+      - web
+
+networks:
+  web:
+    external: true # Use a shared external network for all your services
+
+volumes:
+  caddy_data:
